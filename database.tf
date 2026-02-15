@@ -15,11 +15,11 @@ resource "aws_db_instance" "mysql_db" {
   engine_version         = "8.0"
   instance_class         = "db.t3.micro" # Capa gratuita
   username               = "admin"
-  password               = "MathiasCloud2026" # En producción usaríamos un Secret Manager
+  password = var.db_password
   parameter_group_name   = "default.mysql8.0"
   skip_final_snapshot    = true
   
   # Conectamos con el Security Group que creamos en security.tf
   vpc_security_group_ids = [aws_security_group.db_sg.id]
-  db_subnet_group_name   = aws_db_subnet_group.db_sub_group.name
+db_subnet_group_name = aws_db_subnet_group.db_sub_group.name
 }

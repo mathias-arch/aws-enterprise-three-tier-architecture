@@ -1,13 +1,11 @@
-# ---------------------------------------------------------
-# 1. SECURITY GROUP PARA EL LOAD BALANCER (ALB)
-# ---------------------------------------------------------
-# El ALB es el único que da la cara a Internet.
+# --- SECURITY GROUPS ---
+
+# 1. Security Group para el Balanceador (ALB)
 resource "aws_security_group" "alb_sg" {
-  name        = "${var.project_name}-alb-sg"
-  description = "Permitir trafico HTTP desde el mundo"
+  name        = "enterprise-alb-sg"
+  description = "Permite trafico HTTP desde internet"
   vpc_id      = aws_vpc.main.id
 
-  # Entrada: HTTP desde cualquier parte
   ingress {
     from_port   = 80
     to_port     = 80
@@ -15,31 +13,25 @@ resource "aws_security_group" "alb_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # Salida: Todo permitido
-egress {
+  egress {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
-
-  tags = { Name = "ALB-Security-Group" }
 }
 
-# ---------------------------------------------------------
-# 2. SECURITY GROUP PARA LOS SERVIDORES WEB (APP)
-# ---------------------------------------------------------
-# ¡SEGURIDAD CLAVE!: Solo aceptamos tráfico que venga del ALB.
-resource "aws_security_group" "web_sg" {
-  name        = "${var.project_name}-web-sg"
-  description = "Permitir trafico solo desde el ALB"
+# 2. Security Group para la Aplicación (EC2/ASG)
+resource "aws_security_group" "app_sg" {
+  name        = "enterprise-app-sg"
+  description = "Permite trafico solo desde el ALB"
   vpc_id      = aws_vpc.main.id
 
   ingress {
     from_port       = 80
     to_port         = 80
     protocol        = "tcp"
-    security_groups = [aws_security_group.alb_sg.id] # Solo el ALB tiene la llave
+    security_groups = [aws_security_group.alb_sg.id] # Conexión con alb_sg
   }
 
   egress {
@@ -48,32 +40,18 @@ resource "aws_security_group" "web_sg" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
-
-  tags = { Name = "Web-Server-SG" }
 }
 
-# ---------------------------------------------------------
-# 3. SECURITY GROUP PARA LA BASE DE DATOS (RDS)
-# ---------------------------------------------------------
-# ¡MÁXIMA SEGURIDAD!: Solo los servidores web pueden hablar con la DB.
+# 3. Security Group para la Base de Datos (RDS)
 resource "aws_security_group" "db_sg" {
-  name        = "${var.project_name}-db-sg"
-  description = "Permitir trafico MySQL desde la capa Web"
+  name        = "enterprise-db-sg"
+  description = "Permite trafico solo desde la App"
   vpc_id      = aws_vpc.main.id
 
   ingress {
     from_port       = 3306
     to_port         = 3306
     protocol        = "tcp"
-    security_groups = [aws_security_group.web_sg.id] # Solo la web entra aquí
+    security_groups = [aws_security_group.app_sg.id] # Conexión con app_sg
   }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags = { Name = "Database-SG" }
 }

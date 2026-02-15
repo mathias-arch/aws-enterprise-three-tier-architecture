@@ -5,7 +5,7 @@ Este proyecto despliega una infraestructura profesional de tres capas (Red, Apli
 
 
 ## Resumen del Proyecto
-He automatizado el despliegue de una arquitectura "Enterprise-Ready" que separa las responsabilidades en capas aisladas, garantizando que la base de datos nunca esté expuesta directamente a internet.
+He automatizado el despliegue de una arquitectura "Enterprise-Ready" que separa las responsabilidadess en capas aisladas, garantizando que la base de datos nunca esté expuesta directamente a internet.
 
 ### Arquitectura Desplegada
 * **VPC (Virtual Private Cloud):** Una red aislada con 6 subredes distribuidas en dos Zonas de Disponibilidad (Multi-AZ).
