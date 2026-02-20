@@ -38,30 +38,3 @@ resource "aws_lb_listener" "front_end" {
     target_group_arn = aws_lb_target_group.app_tg.arn
   }
 }
-
-# 4. Launch Template (Define cómo son las instancias EC2)
-resource "aws_launch_template" "enterprise_lt" {
-  name_prefix   = "enterprise-lt-"
-  image_id      = "ami-0c101f26f147fa7fd" # Amazon Linux 2023 en us-east-1
-  instance_type = "t2.micro"
-
-  network_interfaces {
-    associate_public_ip_address = false
-    security_groups             = [aws_security_group.app_sg.id]
-  }
-
-  user_data = base64encode(<<-EOF
-              #!/bin/bash
-              yum update -y
-              yum install -y httpd
-              systemctl start httpd
-              systemctl enable httpd
-              echo "<h1>Hola desde tu arquitectura Cloud en AWS</h1>" > /var/www/html/index.html
-              EOF
-  )
-
-  tag_specifications {
-    resource_type = "instance"
-    tags = { Name = "Enterprise-Web-App" }
-  }
-}

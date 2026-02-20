@@ -6,7 +6,7 @@ resource "aws_db_subnet_group" "db_sub_group" {
 
   tags = { Name = "DB-Subnet-Group" }
 }
-
+ 
 # 2. LA INSTANCIA DE BASE DE DATOS (RDS)
 resource "aws_db_instance" "mysql_db" {
   allocated_storage      = 10
